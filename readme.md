@@ -1,7 +1,7 @@
 Mockup Viewer
 =============
 
-Python script that takes a folder of images and converts it to an `index.html` plus one mockup html page per image.
+Python script that converts a folder of images and into to an `index.html` file plus one full page HTML per image.
 
 Usage
 =====
