@@ -36,7 +36,8 @@ def main():
     im = Image.open(imageFile)
     imgHeight = im.size[1] # returns (width, height) tuple
     
-    htmlContent = '<!DOCTYPE html><html lang="en">\n<head>\n<meta charset="utf-8"><title>Mockup '+str(i)+'</title>\n</head>\n<body style="background:url(i/'+img+') top center no-repeat; padding: 0; margin: 0;">\n<div style="height:'+str(imgHeight)+'px;">\n<img src="i/'+img+'" width="1" /></div>\n</body>\n</html>\n'
+    imgURI = "i/"+urllib2.quote(img.encode("utf8"));
+    htmlContent = '<!DOCTYPE html><html lang="en">\n<head>\n<meta charset="utf-8"><title>Mockup '+str(i)+'</title>\n</head>\n<body style="background:url('+imgURI+') top center no-repeat; padding: 0; margin: 0;">\n<div style="height:'+str(imgHeight)+'px;">\n<img src="'+imgURI+'" width="1" /></div>\n</body>\n</html>\n'
     
     fName = targetDir+"/mockup"+str(i).zfill(2)+".html"
     f = open(fName, 'w')
