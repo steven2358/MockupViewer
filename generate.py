@@ -1,4 +1,5 @@
 import shutil
+import re
 import os
 import struct
 import json
@@ -6,6 +7,14 @@ import PIL
 import urllib2
 
 targetDir = "output"
+
+def page_name(imgName):
+  pageName = os.path.splitext(imgName)[0]
+  pageName = re.sub(r'\s',r'_', pageName)
+  pageName = re.sub(r'[\W]+', '', pageName)
+  pageName = re.sub(r'__',r'_', pageName)
+  pageName = pageName.lower()
+  return pageName
 
 def main():
   # remove old files
@@ -39,7 +48,7 @@ def main():
     imgURI = "i/"+urllib2.quote(img.encode("utf8"));
     htmlContent = '<!DOCTYPE html><html lang="en">\n<head>\n<meta charset="utf-8"><title>Mockup '+str(i)+'</title>\n</head>\n<body style="background:url('+imgURI+') top center no-repeat; padding: 0; margin: 0;">\n<div style="height:'+str(imgHeight)+'px;">\n<img src="'+imgURI+'" width="1" /></div>\n</body>\n</html>\n'
     
-    fName = targetDir+"/mockup"+str(i).zfill(2)+".html"
+    fName = targetDir+"/"+page_name(img)+".html"
     f = open(fName, 'w')
     f.write(htmlContent)
     f.close    
@@ -53,7 +62,7 @@ def main():
   htmlContent = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>'+conf["title"]+'</title>\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n<div id="container">\n<div class="content">\n<h1>'+conf["headline"]+'</h1>\n<ul>\n'  
   i = 1
   for img in imgList:
-    fName = "mockup"+str(i).zfill(2)+".html"
+    fName = page_name(img)+".html"
     htmlContent += '<li><a href="'+fName+'">'+img+'</a></li>\n'
     i += 1  
   htmlContent += '</ul>\n</div>\n</div>\n</body>\n</html>'
