@@ -41,19 +41,22 @@ def main():
   for img in imgList:
     imageFile = "images/"+img
     
-    from PIL import Image
-    im = Image.open(imageFile)
-    imgHeight = im.size[1] # returns (width, height) tuple
-    
-    imgURI = "i/"+urllib2.quote(img.encode("utf8"));
-    htmlContent = '<!DOCTYPE html><html lang="en">\n<head>\n<meta charset="utf-8"><title>Mockup '+str(i)+'</title>\n</head>\n<body style="background:url('+imgURI+') top center no-repeat; padding: 0; margin: 0;">\n<div style="height:'+str(imgHeight)+'px;">\n<img src="'+imgURI+'" width="1" /></div>\n</body>\n</html>\n'
-    
-    fName = targetDir+"/"+page_name(img)+".html"
-    f = open(fName, 'w')
-    f.write(htmlContent)
-    f.close    
-    i += 1
-    print "Generated "+fName  
+    extension = os.path.splitext(img)[1].lower() 
+    if extension in (".jpg", ".png"):
+      
+      from PIL import Image
+      im = Image.open(imageFile)
+      imgHeight = im.size[1] # returns (width, height) tuple
+      
+      imgURI = "i/"+urllib2.quote(img.encode("utf8"));
+      htmlContent = '<!DOCTYPE html><html lang="en">\n<head>\n<meta charset="utf-8"><title>Mockup '+str(i)+'</title>\n</head>\n<body style="background:url('+imgURI+') top center no-repeat; padding: 0; margin: 0;">\n<div style="height:'+str(imgHeight)+'px;">\n<img src="'+imgURI+'" width="1" /></div>\n</body>\n</html>\n'
+      
+      fName = targetDir+"/"+page_name(img)+".html"
+      f = open(fName, 'w')
+      f.write(htmlContent)
+      f.close    
+      i += 1
+      print "Generated "+fName  
   
   # generate index
   with open('config.json') as data_file:    
