@@ -65,9 +65,11 @@ def main():
   htmlContent = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>'+conf["title"]+'</title>\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n<div id="container">\n<div class="content">\n<h1>'+conf["headline"]+'</h1>\n<ul>\n'  
   i = 1
   for img in imgList:
-    fName = page_name(img)+".html"
-    htmlContent += '<li><a href="'+fName+'">'+img+'</a></li>\n'
-    i += 1  
+    extension = os.path.splitext(img)[1].lower() 
+    if extension in (".jpg", ".png"):
+      fName = page_name(img)+".html"
+      htmlContent += '<li><a href="'+fName+'">'+img+'</a></li>\n'
+      i += 1
   htmlContent += '</ul>\n</div>\n</div>\n</body>\n</html>'
   fName = targetDir+"/index.html"
   print fName
