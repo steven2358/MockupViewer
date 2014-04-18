@@ -2,3 +2,10 @@ body {
   margin: 20px;
   font-family: "Lucida Grande", "Trebuchet MS", sans-serif;
 }
+nav {
+  position: fixed;
+  top: 0;
+  background: #eee;
+  margin: 10px 0 0 10px;
+  padding-right: 10px;
+}

@@ -5,6 +5,8 @@ import struct
 import json
 import PIL
 import urllib2
+from PIL import Image
+from itertools import cycle
 
 targetDir = "output"
 
@@ -31,46 +33,86 @@ def main():
   shutil.copyfile("style.css", targetDir+"/style.css")
   print "Copied images and CSS."
   
-  # read image directory
-  imgList = os.listdir("images")
+  # read image directory and filter out non-images
+  fileList = os.listdir("images")
+  imgList = []
+  allowedExtensions = (".jpg", ".png", ".gif", ".bmp", ".jpeg")
+  for file in fileList:
+    extension = os.path.splitext(file)[1].lower() 
+    if extension in allowedExtensions:
+      imgList.append(file)
   #print imgList
       
   # generate mockup htmls
-  i = 1;
+  # get next element: http://stackoverflow.com/a/2167962/1221212
+  running = True
+  imgCycle = cycle(imgList)
+  nextImg = imgCycle.next()
+  prevImage = imgList[-1]
+  pageNamePrev = page_name(nextImg)
+ 
+  while running:
+    img, nextImg = nextImg, imgCycle.next()
+    if imgList.index(nextImg) == 0:
+      running = False
   
-  for img in imgList:
     imageFile = "images/"+img
+    pageName = page_name(img)
+    pageNameNext = page_name(nextImg)
     
     extension = os.path.splitext(img)[1].lower() 
-    if extension in (".jpg", ".png"):
-      
-      from PIL import Image
-      im = Image.open(imageFile)
-      imgHeight = im.size[1] # returns (width, height) tuple
-      
-      imgURI = "i/"+urllib2.quote(img.encode("utf8"));
-      htmlContent = '<!DOCTYPE html><html lang="en">\n<head>\n<meta charset="utf-8"><title>Mockup '+str(i)+'</title>\n</head>\n<body style="background:url('+imgURI+') top center no-repeat; padding: 0; margin: 0;">\n<div style="height:'+str(imgHeight)+'px;">\n<img src="'+imgURI+'" width="1" /></div>\n</body>\n</html>\n'
-      
-      fName = targetDir+"/"+page_name(img)+".html"
-      f = open(fName, 'w')
-      f.write(htmlContent)
-      f.close    
-      i += 1
-      print "Generated "+fName  
+    im = Image.open(imageFile)
+    imgHeight = im.size[1] # returns (width, height) tuple
+    
+    imgURI = "i/"+urllib2.quote(img.encode("utf8"));
+    htmlContent = ''
+    htmlContent += '<!DOCTYPE html><html lang="en">\n'
+    htmlContent += '<head>\n'
+    htmlContent += '<meta charset="utf-8"><title>'+str(imgList.index(img)+1)+' - '+pageName+'</title>\n'
+    htmlContent += '<link rel="stylesheet" href="style.css">\n'
+    htmlContent += '</head>\n'
+    htmlContent += '<body style="background:url('+imgURI+') top center no-repeat; padding: 0; margin: 0;">\n'
+    htmlContent += '<div style="height:'+str(imgHeight)+'px;">\n'
+    htmlContent += '<img src="'+imgURI+'" width="1" />\n'
+    htmlContent += '</div>\n'
+    htmlContent += '<nav><ul>\n'
+    htmlContent += '<li><a href="index.html">Home</a></li>\n'
+    htmlContent += '<li><a href="'+pageNameNext+'.html">Next</a></li>\n'
+    htmlContent += '<li><a href="'+pageNamePrev+'.html">Previous</a></li>\n'
+    htmlContent += '</ul></nav>\n'
+    htmlContent += '</body>\n'
+    htmlContent += '</html>\n'
+    
+    pageNamePrev = pageName
+    
+    fName = targetDir+"/"+pageName+".html"
+    f = open(fName, 'w')
+    f.write(htmlContent)
+    f.close
+    print "Generated "+fName  
   
   # generate index
   with open('config.json') as data_file:    
     conf = json.load(data_file)
   
-  htmlContent = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>'+conf["title"]+'</title>\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n<div id="container">\n<div class="content">\n<h1>'+conf["headline"]+'</h1>\n<ul>\n'  
-  i = 1
+  htmlContent = ''
+  htmlContent += '<!DOCTYPE html>\n<html lang="en">\n'
+  htmlContent += '<head>\n'
+  htmlContent += '<meta charset="utf-8">\n'
+  htmlContent += '<title>'+conf["title"]+'</title>\n'
+  htmlContent += '<link rel="stylesheet" href="style.css">\n'
+  htmlContent += '</head>\n'
+  htmlContent += '<body>\n'
+  htmlContent += '<div id="container">\n<div class="content">\n'
+  htmlContent += '<h1>'+conf["headline"]+'</h1>\n<ol>\n'
   for img in imgList:
-    extension = os.path.splitext(img)[1].lower() 
-    if extension in (".jpg", ".png"):
-      fName = page_name(img)+".html"
-      htmlContent += '<li><a href="'+fName+'">'+img+'</a></li>\n'
-      i += 1
-  htmlContent += '</ul>\n</div>\n</div>\n</body>\n</html>'
+    htmlContent += '<li><a href="'+page_name(img)+'.html">'+img+'</a></li>\n'
+  htmlContent += '</ol>\n'
+  htmlContent += '</div>\n'
+  htmlContent += '</div>\n'
+  htmlContent += '</body>\n'
+  htmlContent += '</html>'
+  
   fName = targetDir+"/index.html"
   print fName
   f = open(fName, 'w')
