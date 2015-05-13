@@ -4,8 +4,8 @@ body {
 }
 nav {
   position: fixed;
-  top: 0;
+  bottom: 0;
   background: #eee;
-  margin: 10px 0 0 10px;
+  margin: 0 0 10px 10px;
   padding-right: 10px;
 }
