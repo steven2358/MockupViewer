@@ -25,12 +25,13 @@ def main():
     print "Target folder deleted."
   
   # create target folder
-  os.mkdir(targetDir)  
+  os.mkdir(targetDir)
   print "New target folder created."
   
   # copy images
   shutil.copytree("images", targetDir+"/i")
   shutil.copyfile("style.css", targetDir+"/style.css")
+  os.mkdir(targetDir+"/i/t")
   print "Copied images and CSS."
   
   # read image directory and filter out non-images
@@ -90,6 +91,17 @@ def main():
     f.write(htmlContent)
     f.close
     print "Generated "+fName  
+  
+  # generate thumbnails http://stackoverflow.com/a/273962/1221212
+  thumbSize = 128, 128
+  for img in imgList:
+    imageFile = "images/"+img
+    thumbFile = "output/i/t/"+ os.path.splitext(img)[0]
+    try:
+      im = Image.open(imageFile)
+      im.thumbnail(thumbSize, Image.ANTIALIAS)
+    except IOError:
+      print "cannot create thumbnail for '%s'" % infile
   
   # generate index
   with open('config.json') as data_file:    
