@@ -4,8 +4,8 @@ import os
 import struct
 import json
 import PIL
-import urllib2
 from PIL import Image
+from urllib.parse import quote_plus
 from itertools import cycle
 
 targetDir = "output"
@@ -22,38 +22,38 @@ def main():
   # remove old files
   if (os.path.isdir(targetDir)):
     shutil.rmtree(targetDir)
-    print "Target folder deleted."
+    print("Target folder deleted.")
   
   # create target folder
   os.mkdir(targetDir)
-  print "New target folder created."
+  print("New target folder created.")
   
   # copy images
   shutil.copytree("images", targetDir+"/i")
   shutil.copyfile("style.css", targetDir+"/style.css")
   os.mkdir(targetDir+"/i/t")
-  print "Copied images and CSS."
+  print("Copied images and CSS.")
   
   # read image directory and filter out non-images
-  fileList = os.listdir("images")
+  fileList = sorted(os.listdir("images"))
   imgList = []
   allowedExtensions = (".jpg", ".png", ".gif", ".bmp", ".jpeg")
   for file in fileList:
     extension = os.path.splitext(file)[1].lower() 
     if extension in allowedExtensions:
       imgList.append(file)
-  #print imgList
+  #print(imgList)
       
   # generate mockup htmls
   # get next element: http://stackoverflow.com/a/2167962/1221212
   running = True
   imgCycle = cycle(imgList)
-  nextImg = imgCycle.next()
+  nextImg = next(imgCycle)
   prevImage = imgList[-1]
   pageNamePrev = page_name(nextImg)
  
   while running:
-    img, nextImg = nextImg, imgCycle.next()
+    img, nextImg = nextImg, next(imgCycle)
     if imgList.index(nextImg) == 0:
       running = False
   
@@ -65,7 +65,7 @@ def main():
     im = Image.open(imageFile)
     imgHeight = im.size[1] # returns (width, height) tuple
     
-    imgURI = "i/"+urllib2.quote(img.encode("utf8"));
+    imgURI = "i/"+quote_plus(img);
     htmlContent = ''
     htmlContent += '<!DOCTYPE html><html lang="en">\n'
     htmlContent += '<head>\n'
@@ -90,7 +90,7 @@ def main():
     f = open(fName, 'w')
     f.write(htmlContent)
     f.close
-    print "Generated "+fName  
+    print("Generated "+fName)
   
   # generate thumbnails http://stackoverflow.com/a/273962/1221212
   thumbSize = 128, 128
@@ -101,7 +101,7 @@ def main():
       im = Image.open(imageFile)
       im.thumbnail(thumbSize, Image.ANTIALIAS)
     except IOError:
-      print "cannot create thumbnail for '%s'" % infile
+      print("cannot create thumbnail for '%s'" % infile)
   
   # generate index
   with open('config.json') as data_file:    
@@ -126,11 +126,11 @@ def main():
   htmlContent += '</html>'
   
   fName = targetDir+"/index.html"
-  print fName
+  print(fName)
   f = open(fName, 'w')
   f.write(htmlContent)
   f.close
-  print "Generated index.html"
+  print("Generated index.html")
 
 if __name__ == "__main__":
     main()
